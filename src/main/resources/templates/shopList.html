@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Wh1te5old</title>
+</head>
+<body>
+<h1 align="center">ShopList</h1>
+
+<div id="shoList">
+    <span v-text="entity"></span>
+    <div align="center">
+    商品名称<input  type="text" v-model="entity">&nbsp;&nbsp;&nbsp;&nbsp;<button @click="selectList">查询</button>
+
+    </div><br>
+<table  width="80%" border="1px" align="center">
+    <tr>
+        <th>选择</th>
+        <th>序号</th>
+        <th>商品编号</th>
+        <th>商品名称</th>
+        <th>商品类型</th>
+        <th>商品价格</th>
+        <th>操作</th>
+    </tr>
+    <tr v-for="(item,index) in list">
+        <th><input type="checkbox" v-model="radio" :value="item.gid"></th>
+        <th>{{index + 1}}</th>
+        <th>{{item.gid}}</th>
+        <th>{{item.gname}}</th>
+        <th>{{item.tname}}</th>
+        <th>{{item.gprice}}</th>
+        <th><button  @click="deletes()">删除</button></th>
+    </tr>
+</table>
+    <div align="center" style="margin-top: 30px">
+    <button @click="">上一页</button>&nbsp;&nbsp;<span v-text="page">1</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span v-text="pages">10</span>&nbsp;&nbsp;<button>下一页</button>
+    </div>
+</div><!--作用域-->
+</body>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="VueJs/vue.js"></script>
+<script>
+    const app = new Vue({
+       el:"#shoList",
+        data:{
+             list:[],
+             radio:[],
+             entity:"",
+             page:2,
+             size:10,
+             pages:1
+        },
+        methods:{
+            selectList (){
+                axios.get('/findByPage?page=1&size=1&gname='+this.entity)
+                    .then(function (response) {
+                        app.list = response.data.list;
+                        app.page = response.data.pageNum;
+                        app.size = response.data.pageSize;
+                        app.pages = response.data.pages;
+                        console.log(response.data);
+                    });
+            },
+            deletes (){
+                axios.delete('/delete?ids='+app.radio)
+                    .then(function (response) {
+                        if (response.data>=1){
+                            alert("删除成功");
+                            app.radio=[];
+                            app.selectList();
+                        }
+                    });
+            }
+        },
+        created: function(){
+           this.selectList();
+        }
+    });
+
+</script>
+</html>
